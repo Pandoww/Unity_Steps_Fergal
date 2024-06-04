@@ -5,20 +5,23 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class NewBehaviourScript : MonoBehaviour
+public class Ball : MonoBehaviour
 
 {
     public float speed = 10;
     public TMP_Text pointsLeft;
     public TMP_Text pointsRight;
 
-    public Camera mainCam;
+    public Camera MainCamera;
+    public Camera camera2;
 
     public GameObject power;
 
     public GameObject power2;
     int playerA_points=0;
     int playerB_points=0;
+    public float slowDownFactor = 0.4f;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -55,6 +58,8 @@ public class NewBehaviourScript : MonoBehaviour
     void OnCollisionEnter(Collision hit)
 
     {
+       
+        
         if(hit.gameObject.name=="gauche")
         {
             transform.position = new Vector3(0,3,0);
@@ -67,17 +72,41 @@ public class NewBehaviourScript : MonoBehaviour
             Start();
         }else if(hit.gameObject.name=="PowerUp")
         {
-            mainCam.fieldOfView = 110;
+            
+            MainCamera.enabled = false;
+            camera2.enabled = true;
+
+            power.SetActive(true);
             Destroy(power);
+            StartCoroutine(PowerEnd(5));
+            
         }
+  
     }
 
     void OnTriggerEnter(Collider touch){
 
         if(touch.gameObject.name=="PowerUp2"){
-            mainCam.fieldOfView = 56;
+            speed = speed * slowDownFactor;
             Destroy(touch.gameObject);
+            StartCoroutine(ReduceSpeed(5));
         }
     }
+
+    IEnumerator PowerEnd(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        MainCamera.enabled = true;
+        camera2.enabled = false;
+    }
+
+     IEnumerator ReduceSpeed(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        speed = 10;
+            
+        }
 }
+
+
 
