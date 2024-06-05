@@ -21,6 +21,8 @@ public class Ball : MonoBehaviour
     int playerA_points=0;
     int playerB_points=0;
     public float slowDownFactor = 0.4f;
+    public GameObject prefab;
+    public bool isPaused=false;
     
 
     // Start is called before the first frame update
@@ -47,19 +49,27 @@ public class Ball : MonoBehaviour
         GetComponent<Rigidbody>().velocity = new Vector2(speed*x, speed*y);
         pointsLeft.SetText(playerA_points.ToString());
         pointsRight.SetText(playerB_points.ToString());
+         for(int i=0;i<5;i++)
+        {
+            Instantiate(prefab,new Vector3(-16+i, 0, 0), Quaternion.identity); 
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+         if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            isPaused = !isPaused;
+            Pause();
+        }
     }
 
     void OnCollisionEnter(Collision hit)
 
     {
        
-        
+        GetComponent<AudioSource>().Play();
         if(hit.gameObject.name=="gauche")
         {
             transform.position = new Vector3(0,3,0);
@@ -70,14 +80,14 @@ public class Ball : MonoBehaviour
             transform.position = new Vector3(0,3,0);
             playerA_points++;
             Start();
-        }else if(hit.gameObject.name=="PowerUp")
+        }else if(hit.gameObject.tag=="PowerUp")
         {
             
             MainCamera.enabled = false;
             camera2.enabled = true;
-
-            power.SetActive(true);
-            Destroy(power);
+            //Instantiate(prefab,new Vector3(-16, 0, 0), Quaternion.identity);
+            power.SetActive(false);
+            //Destroy(power);
             StartCoroutine(PowerEnd(5));
             
         }
@@ -86,10 +96,12 @@ public class Ball : MonoBehaviour
 
     void OnTriggerEnter(Collider touch){
 
-        if(touch.gameObject.name=="PowerUp2"){
+        if(touch.gameObject.name=="PowerUp2")
+        {
             speed = speed * slowDownFactor;
-            Destroy(touch.gameObject);
+            //Destroy(touch.gameObject);
             StartCoroutine(ReduceSpeed(5));
+             touch.gameObject.SetActive(false);
         }
     }
 
@@ -106,6 +118,15 @@ public class Ball : MonoBehaviour
         speed = 10;
             
         }
+    void Pause(){
+        if(isPaused)
+        {
+            Time.timeScale = 0;
+        }else
+        {
+            Time.timeScale = 1;
+        }
+    }
 }
 
 
